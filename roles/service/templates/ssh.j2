@@ -1,0 +1,18 @@
+{% set ssh = service['ssh'] %}
+
+
+{% if ssh['port'] is defined %}
+set service ssh port {{ ssh['port'] }} 
+{% endif %}
+{% if ssh['client_keepalive_interval'] is defined %}
+set service ssh client-keepalive-interval {{ ssh['client_keepalive_interval'] }} 
+{% endif %}
+{% if ssh['disable_host_validation'] is defined %}
+set service ssh disable-host-validation {{ ssh['disable_host_validation'] }} 
+{% endif %}
+{% if ssh['disable_host_validation'] is defined %}
+set service ssh disable-host-validation {{ ssh['disable_host_validation'] }} 
+{% endif %}
+{% if ssh['vrf'] is defined %}
+set service ssh vrf {{ ssh['vrf'] }} 
+{% endif %}

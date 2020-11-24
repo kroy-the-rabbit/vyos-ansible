@@ -1,0 +1,23 @@
+{% for address in firewall.address_groups %}
+
+{% if address['groups'] is defined %}
+
+{% for group in address['groups'] %}
+
+{% if address['v4_addr'] is defined %}
+{% for ip_addr in address['v4_addr'] %}
+set firewall group address-group {{ group }} address {{ ip_addr }}
+{% endfor %}
+{% endif %}
+
+{% if address['v6_addr'] is defined %}
+{% for ip_addr in address['v6_addr'] %}
+set firewall group ipv6-address-group {{ group }} address {{ ip_addr }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}

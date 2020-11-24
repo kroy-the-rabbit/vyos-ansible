@@ -1,0 +1,31 @@
+{% for nat_type,rules in nat.items() %}
+{% for rule in rules['rules'] %}
+{% if rule['source_addr'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} source address {{ rule['source_addr'] }}
+{% endif %}
+{% if rule['source_port'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} source port {{ rule['source_port'] }}
+{% endif %}
+{% if rule['destination_addr'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} destination address {{ rule['destination_addr'] }}
+{% endif %}
+{% if rule['destination_port'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} destination port {{ rule['destination_port'] }}
+{% endif %}
+{% if rule['protocol'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} protocol {{ rule['protocol'] }}
+{% endif %}
+{% if rule['translation_addr'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} translation address {{ rule['translation_addr'] }}
+{% endif %}
+{% if rule['outbound_interface'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} outbound-interface {{ rule['outbound_interface'] }}
+{% endif %}
+{% if rule['inbound_interface'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} inbound-interface {{ rule['inbound_interface'] }}
+{% endif %}
+{% if rule['desc'] is defined %}
+set nat {{ nat_type }} rule {{ loop.index }} description "{{ rule['desc'] }}"
+{% endif %}
+{% endfor %}
+{% endfor %}

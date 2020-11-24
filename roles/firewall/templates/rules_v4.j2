@@ -1,0 +1,77 @@
+{% if firewall['ipv4'] %}
+{% for fw in firewall['ipv4'] %}
+{% if fw['name'] is defined %}
+{% if fw['default_action'] is defined %}
+set firewall name {{ fw['name'] }} default-action {{ fw['default_action'] }}
+{% endif %}
+{% if fw['enable_default_log'] is defined %}
+set firewall name {{ fw['name'] }} enable-default-log
+{% endif %}
+{% if fw['desc'] is defined %}
+set firewall name {{ fw['name'] }} description {{ fw['desc'] }}
+{% endif %}
+
+{% if fw['rules'] is defined %}
+{% for rule in fw['rules'] %}
+{% set rule_loop = loop %}
+{% if rule['action'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} action {{ rule['action'] }}
+{% endif %}
+{% if rule['desc'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} description "{{ rule['desc'] }}"
+{% endif %}
+{% if rule['source_addr'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} source address "{{ rule['source_addr'] }}"
+{% endif %}
+{% if rule['source_port'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} source port "{{ rule['source_port'] }}"
+{% endif %}
+{% if rule['destination_addr'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} destination address "{{ rule['destination_addr'] }}"
+{% endif %}
+{% if rule['destination_port'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} destination port "{{ rule['destination_port'] }}"
+{% endif %}
+{% if rule['protocol'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} protocol "{{ rule['protocol'] }}"
+{% endif %}
+
+{% if rule['states'] is defined %}
+{% for fwstate in rule['states'] %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} state {{ fwstate }} enable
+{% endfor %}
+{% else %}
+delete firewall name {{ fw['name'] }} rule {{ rule_loop.index }} state 
+{% endif %}
+
+{% if rule['source_network_group'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} source group network-group {{ rule['source_network_group'] }}
+{% endif %}
+
+{% if rule['source_address_group'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} source group address-group {{ rule['source_address_group'] }}
+{% endif %}
+
+{% if rule['destination_network_group'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} destination group network-group {{ rule['destination_network_group'] }}
+{% endif %}
+
+{% if rule['destination_address_group'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} destination group address-group {{ rule['destination_address_group'] }}
+{% endif %}
+
+{% if rule['log'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} log {{ rule['log'] }}
+{% endif %}
+
+{% if rule['disable'] is defined %}
+set firewall name {{ fw['name'] }} rule {{ rule_loop.index }} disable
+{% else %}
+delete firewall name {{ fw['name'] }} rule {{ rule_loop.index }} disable
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endif %}
+{% endfor %}
+{% endif %}

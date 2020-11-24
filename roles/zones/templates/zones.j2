@@ -1,0 +1,35 @@
+{% for zone in firewall.zones %}
+{% if zone['name'] is defined %}
+{% if zone['default_action'] is defined %}
+set zone-policy zone {{ zone['name'] }} default-action {{ zone['default_action'] }}
+{% endif %}
+{% if zone['desc'] is defined %}
+set zone-policy zone {{ zone['name'] }} description "{{ zone['desc'] }}"
+{% endif %}
+{% if zone['local_zone'] is defined %}
+set zone-policy zone {{ zone['name'] }} local-zone
+{% endif %}
+
+{% if zone['desc'] is defined %}
+set zone-policy zone {{ zone['name'] }} description "{{ zone['desc'] }}"
+{% endif %}
+
+{% if zone['interfaces'] is defined %}
+{% for interface in zone['interfaces'] %}
+set zone-policy zone {{ zone['name'] }} interface {{ interface }}
+{% endfor %}
+{% endif %}
+
+{% if zone['from_zone'] is defined %}
+{% for from in zone['from_zone'] %}
+{% if from['ipv4'] is defined %}
+set zone-policy zone {{ zone['name'] }} from {{ from['name'] }} firewall name {{ from['ipv4'] }}
+{% endif %}
+{% if from['ipv6'] is defined %}
+set zone-policy zone {{ zone['name'] }} from {{ from['name'] }} firewall ipv6-name {{ from['ipv6'] }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+{% endif %}
+{% endfor %}

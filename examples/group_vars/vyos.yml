@@ -1,0 +1,4 @@
+ansible_connection: network_cli
+ansible_network_os: vyos
+ansible_ssh_private_key_file: ~/Documents/infra/terraform/keys/id_ansible
+ansible_user: ansible

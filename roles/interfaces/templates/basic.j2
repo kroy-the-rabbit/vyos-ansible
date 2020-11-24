@@ -1,0 +1,44 @@
+{% for interface in interfaces %}
+{% if interface['name'] is defined %}
+
+{% set iface_name = ['ethernet',interface['name']]|join(' ') %}
+{% if interface['name'] == 'lo' %}
+{% set iface_name = ['loopback',interface['name']]|join(' ') %}
+{% endif %}
+{% if interface['vif'] is defined %}
+{% set iface_name = [iface_name,"vif",interface['vif']]|join(' ') %}
+{% endif %}
+
+{% if interface['desc'] is defined %}
+set interfaces {{ iface_name }} description "{{ interface['desc'] }}"
+{% endif %}
+
+{% if interface['hw_id'] is defined %}
+set interfaces {{ iface_name }} hw-id {{ interface['hw_id'] }}
+{% endif %}
+
+{% if interface['disable'] is defined %}
+set interfaces {{ iface_name }} disable
+{else}
+delete interfaces {{ iface_name }} disable
+{% endif %}
+
+{% if interface['ipv6_dup_addr_detect'] is defined %}
+set interfaces {{ iface_name }} ipv6 dup-addr-detect-transmits 1
+{% endif %}
+
+{% if interface['item.policy_ipv4'] is defined %}
+set interfaces {{ iface_name }} policy route {{ item.policy_ipv4 }}
+{% endif %}
+{% if interface['item.policy_ipv6'] is defined %}
+set interfaces {{ iface_name }} policy ipv6-route {{ item.policy_ipv6 }}
+{% endif %}
+
+{% if interface['addrs'] is defined %}
+{% for address in interface['addrs'] %}
+set interfaces {{ iface_name }} address {{ address }} 
+{% endfor %}
+{% endif %}
+
+{% endif %}
+{% endfor %}

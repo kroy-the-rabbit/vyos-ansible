@@ -1,0 +1,80 @@
+{% if service['dhcp_server'] %}
+
+{% set server = service['dhcp_server'] %}
+
+{% if server['hostfile_update'] is defined %}
+set service dhcp-server hostfile-update
+{% else %}
+delete service dhcp-server hostfile-update
+{% endif %}
+{% if server['host_decl_name'] is defined %}
+set service dhcp-server host-decl-name
+{% else %}
+delete service dhcp-server host-decl-name
+{% endif %}
+{% if server['disable'] is defined %}
+set service dhcp-server disable
+{% else %}
+delete service dhcp-server disable
+{% endif %}
+
+
+{% if server['shared_networks'] is defined %}
+
+{% for network in server['shared_networks'] %}
+
+{% if network['name'] is defined %}
+{% if network['authoritative'] is defined %}
+set service dhcp-server shared-network-name {{ network['name'] }} authoritative
+{% else %}
+delete service dhcp-server shared-network-name {{ network['name'] }} authoritative
+{% endif %}
+
+
+{% if network['subnets'] is defined %}
+{% for subnet in network['subnets'] %}
+
+{% if subnet['subnet'] %}
+
+{% if subnet['default_router'] %}
+set service dhcp-server shared-network-name {{ network['name'] }} subnet {{ subnet['subnet'] }} default-router {{ subnet['default_router'] }}
+{% endif %}
+{% if subnet['lease_time'] %}
+set service dhcp-server shared-network-name {{ network['name'] }} subnet {{ subnet['subnet'] }} lease {{ subnet['lease_time'] }}
+{% endif %}
+
+{% if subnet['dns_servers'] is defined %}
+{% for dns in subnet['dns_servers'] %}
+set service dhcp-server shared-network-name {{ network['name'] }} subnet {{ subnet['subnet'] }} dns-server {{ dns }}
+{% endfor %}
+{% endif %}
+
+{% if subnet['range'] is defined %}
+{% for range in subnet['range'] %}
+{% if range['name'] is defined %}
+{% if range['start'] is defined %}
+set service dhcp-server shared-network-name {{ network['name'] }} subnet {{ subnet['subnet'] }} range {{ range['name'] }} start {{ range['start'] }}
+{% endif %}
+{% if range['stop'] is defined %}
+set service dhcp-server shared-network-name {{ network['name'] }} subnet {{ subnet['subnet'] }} range {{ range['name'] }} stop {{ range['stop'] }}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% endfor %}
+{% endif %}
+{% endif %}
+
+
+
+
+
+
+
+
+
+

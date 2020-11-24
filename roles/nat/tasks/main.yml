@@ -1,0 +1,12 @@
+---
+# tasks file for nat
+#
+
+
+- name: Define NAT
+  vyos_config:
+        src: nat.j2
+  when:
+      - nat is defined
+  tags:
+      - firewall

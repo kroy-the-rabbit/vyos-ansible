@@ -1,0 +1,23 @@
+{% for network in firewall.network_groups %}
+
+{% if network['groups'] is defined %}
+
+{% for group in network['groups'] %}
+
+{% if network['v4_addr'] is defined %}
+{% for ip_addr in network['v4_addr'] %}
+set firewall group network-group {{ group }} network {{ ip_addr }}
+{% endfor %}
+{% endif %}
+
+{% if network['v6_addr'] is defined %}
+{% for ip_addr in network['v6_addr'] %}
+set firewall group ipv6-network-group {{ group }} network {{ ip_addr }}
+{% endfor %}
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}

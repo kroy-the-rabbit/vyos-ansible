@@ -1,0 +1,19 @@
+---
+- hosts: vyos
+  gather_facts: yes
+  tasks:
+      - import_role:
+          name: system
+      - import_role:
+          name: firewall
+      - import_role:
+          name: zones
+      - import_role:
+          name: interfaces
+      - import_role:
+          name: nat
+      - import_role:
+          name: service
+      - name: Save configuration
+        vyos_config:
+            save: true

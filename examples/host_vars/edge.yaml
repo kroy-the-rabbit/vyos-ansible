@@ -1,0 +1,464 @@
+hostname: edge
+domainname: lan.domain.com
+nameservers: ['10.53.53.53', '10.53.53.54', 'feed:dead:beef:53::53','feed:dead:beef:53::54']
+ntpservers: ['10.9.1.60',' 0.north-america.pool.ntp.org','1.north-america.pool.ntp.org','2.north-america.pool.ntp.org','3.north-america.pool.ntp.org']
+log_host: 10.20.20.36
+interfaces:
+    - name: "eth1"
+      adddresses:
+          - "dhcp"
+      desc: "LocalTestingMAnagement"
+    - name: "eth0"
+      desc: "UNTAG"
+    - name: "eth0"
+      vif: 2
+      desc: "IoT"
+      addrs: 
+          - "192.168.2.1/24"
+          - "feed:dead:beef:2::1/64"
+      ipv6_dup_addr_detect: 1
+    - name: "eth0"
+      vif: 4
+      desc: "VPN Stuff"
+      addrs:
+          - "10.0.4.1/24"
+      policy_ipv4: "VPNSTUFF"
+    - name: "eth0"
+      vif: 6
+      desc: "DMZ"
+      addrs: 
+          - "192.168.201.1/24"
+    - name: "eth0"
+      vif: 7
+      desc: "WAN01"
+      addrs: 
+          - "192.0.2.25/25"
+    - name: "eth0"
+      vif: 10
+      desc: "RoutingVLAN"
+      addrs: 
+          - "10.0.10.1/24"
+          - "feed:dead:beef:10::1/64"
+    - name: "eth0"
+      vif: 50 
+      desc: "Management"
+      addrs: 
+          - "10.50.1.1/24"
+          - "feed:dead:beef:50::1/64"
+      ipv6_dup_addr_detect: 1
+    - name: "eth0"
+      vif: 500 
+      addrs: 
+          - "10.253.253.1/30"
+          - "feed:dead:beef:500::1/64"
+      desc: "VLAN500"
+    - name: "eth0"
+      vif: 501 
+      addrs: 
+          - "172.27.32.1/31"
+      desc: "To untangle"
+    - name: "eth0"
+      vif: 504 
+      desc: "ESXiNet"
+      addrs: 
+          - "10.0.54.1/24"
+          - "feed:dead:beef:54::1/64"
+      ipv6_dup_addr_detect: 1
+    - name: "eth0"
+      vif: 505 
+      desc: "DS"
+      addrs: 
+          - "10.0.55.1/24"
+          - "feed:dead:beef:55::1/64"
+      ipv6_dup_addr_detect: 1
+    - name: "eth0"
+      vif: 508 
+      desc: "VLAN508"
+      addrs: 
+          - "10.245.245.9/30"
+          - "feed:dead:beef:508::1/64"
+    - name: "eth0"
+      vif: 509 
+      desc: "VLAN509"
+      addrs: 
+          - "10.245.245.5/30"
+          - "feed:dead:beef:509::1/64"
+    - name: "eth0"
+      vif: 510
+      desc: "to Arista"
+      addrs: 
+          - "10.245.245.1/30"
+          - "feed:dead:beef:510::1/64"
+    - name: "lo"
+      desc: "Loopback"
+      addrs: 
+          - "10.0.20.254/32"
+nat:
+    source:
+        rules:
+            - source_addr: "10.0.0.0/8"
+              translation_addr: "masquerade"
+              outbound_interface: "eth0.7"
+              desc: "RCF1918 10/8"
+            - source_addr: "172.16.0.0/12"
+              translation_addr: "masquerade"
+              outbound_interface: "eth0.7"
+              desc: "RCF1918 172.12/12"
+            - source_addr: "192.168.0.0/16"
+              translation_addr: "masquerade"
+              outbound_interface: "eth0.7"
+              desc: "RCF1918 172.12/12"
+            - source_addr: "10.0.4.0/24"
+              translation_addr: "masquerade"
+              outbound_interface: "wg4"
+              desc: "VPNStuff"
+            - source_addr: "10.0.0.0/8"
+              translation_addr: "masquerade"
+              outbound_interface: "eth0.10"
+              desc: "Minecraft BE"
+              protocol: "tcp_udp"
+              destination_addr: "10.9.1.63"
+              destination_port: 19132
+    destination:
+        rules:
+            - destination_port: "80,443"
+              inbound_interface: "eth0.7"
+              protocol: "tcp"
+              translation_addr: "10.20.20.38"
+              desc: "HTTP(s) Proxy"
+            - destination_port: "32400"
+              inbound_interface: "eth0.7"
+              protocol: "tcp"
+              translation_addr: "10.22.22.67"
+              desc: "Plex"
+            - destination_port: "19132"
+              destination_addr: "192.0.2.25"
+              inbound_interface: "eth0.7"
+              protocol: "tcp_udp"
+              translation_addr: "10.9.1.63"
+              desc: "Minecraft BE Outside"
+            - destination_port: "19132"
+              destination_addr: "192.0.2.25"
+              inbound_interface: "eth0.10"
+              protocol: "tcp_udp"
+              translation_addr: "10.9.1.63"
+              desc: "Minecraft BE Hairpin"
+
+firewall:
+
+    address_groups:
+        - name: OFFSITEVMWare
+          v4_addr:
+              - 10.0.0.203
+              - 10.0.0.180
+              - 10.0.0.181
+              - 10.0.0.182
+              - 10.0.0.183
+          groups:
+              - OFFSITEVMWare
+        - name: ES_HOSTS
+          v4_addr:
+              - 10.22.22.223
+              - 10.22.22.200
+              - 10.22.22.154
+          groups:
+              - ES_HOSTS
+        - name: GRE_HOSTS
+          v4_addr:
+              - 192.2.0.2
+          groups:
+              - GRE_Hosts
+    network_groups:
+        - name: RFC1918
+          v4_addr:
+              - 10.0.0.0/8
+              - 192.168.0.0/16
+              - 172.16.0.0/12
+          groups:
+              - RFC1918
+        - name: DMZ_NETWORK
+          v4_addr:
+              - 192.168.201.0/24
+          groups:
+              - DMZ-NETWORK
+    ipv6:
+        - name: LAN-WAN-6
+          default_action: accept 
+          rules:
+              - action: reject
+                desc: "Netflix Killswitch"
+                source_addr: "feed:dead:beef:9::/64"
+                destination_port: 53,853
+                protocol: tcp_udp
+              - action: reject
+                desc: "Netflix Killswitch"
+                destination_addr: "2620:108:7000::/32"
+        - name: LAN-LOCAL-6
+          default_action: accept
+        - name: LOCAL-LAN-6
+          default_action: accept
+        - name: LOCAL-WAN-6
+          default_action: accept
+        - name: WAN-LAN-6
+          default_action: drop
+          rules:
+              - action: accept
+                protocol: icmpv6
+        - name: WAN-LOCAL-6
+          default_action: drop
+          rules:
+              - action: accept
+                protocol: icmpv6
+    ipv4:
+        - name: LAN-WAN
+          default_action: accept
+          rules:
+              - action: drop
+                desc: "VPN Killswitch"
+                source_addr: "10.0.4.0/24"
+                disable: True
+              - action: reject 
+                desc: "Netflix Killswitch"
+                source_addr: "10.9.1.0/24"
+                destination_port: 53,853
+                protocol: tcp_udp
+        - name: LAN-LOCAL
+          default-action: accept
+          rules:
+              - action: reject
+                desc: "Block Wireguard from LAN"
+                destination_port: 2224
+                protocol: udp
+                source_addr: "10.9.1.0/24"
+        - name: DMZ-LAN
+          default_action: drop
+          rules:
+              - action: accept
+                states:
+                    - established
+                    - related
+              - action: drop
+                desc: "Block DMZ"
+                protocol: all
+                source_network_group: DMZ-NETWORK
+        - name: DMZ-WAN
+          default_action: accept
+        - name: LOCAL-LAN
+          default_action: accept
+        - name: LOCAL-WAN
+          default_action: accept
+        - name: TEST
+          default_action: drop
+          desc: "Test"
+        - name: WAN-LOCAL
+          default_action: drop
+          desc: "WAN->LOCAL"
+          rules:
+              - action: accept
+                protocol: icmp
+                desc: "Allow all ICMP"
+                states:
+                    - new
+              - action: accept
+                protocol: gre
+                desc: "GRE to VPS"
+                source_addr: 192.0.2.30
+                states:
+                    - new
+              - action: accept
+                desc: "BGP Feed"
+                protocol: tcp
+                port: 179
+                source_addr: 38.229.46.20
+                states:
+                    - new
+              - action: accept
+                protocol: udp
+                desc: "OpenVPN Server"
+                destination_port: 1194
+                states:
+                    - new
+              - action: accept
+                protocol: udp
+                desc: "WireGuard Server"
+                destination_port: 2224
+                states:
+                    - new
+              - action: accept
+                desc: "MTik Discovery"
+                destination_port: 5678
+                protocol: udp
+                source_addr: 10.0.0.0/8
+              - action: drop
+                desc: "Block WAN DHCP Packets"
+                destination_port: 67
+                protocol: udp
+              - action: drop
+                log: enable
+                protocol: all
+                desc: "Graylog logging rule"
+
+
+        - name: WAN-LAN
+          default_action: drop
+          desc: "WAN->LAN"
+          rules:
+              - action: accept
+                desc: "OFFSITE"
+                destination_addr: 10.20.20.189
+                destination_port: 22
+                protocol: tcp
+                source_addr: 10.0.0.0/24
+                states:
+                    - new
+              - action: accept
+                desc: "Local BGP"
+                destination_port: 179
+                protocol: tcp
+                source_addr: 172.27.112.1
+                states:
+                    - new
+              - action: accept
+                desc: "Allow access to ES hosts from remote site"
+                destination_address_group: ES_HOSTS
+                destination_port: 9200,9300
+                protocol: tcp
+                source_addr: 10.0.0.0/24
+                states:
+                    - new
+              - action: accept
+                desc: "OFFSITEWMWare"
+                destination_addr: 10.3.1.70
+                protocol: tcp_udp
+                source_address_group: OFFSITEVMWare
+                states:
+                    - new
+              - action: accept
+                desc: "HTTP(s) Proxy"
+                destination_address: 10.20.20.38
+                destination_port: 80,443
+                protocol: tcp
+                states:
+                    - new
+              - action: accept
+                desc: "Plex"
+                destination_address: 10.22.22.67
+                destination_port: 32400
+                protocol: tcp
+                states:
+                    - new
+              - action: accept
+                desc: "Minecraft BE"
+                destination_address: 10.9.1.63
+                destination_port: 19132
+                protocol: tcp_udp
+                disable: True
+                states:
+                    - new
+    
+    zones:
+        - name: WAN
+          desc: "WAN Zone"
+          default_action: drop
+          interfaces:
+              - tun1
+              - vtun1
+              - wg1
+              - wg2
+              - eth0.7
+              - wg4
+          from_zone:
+              - name: LAN
+                ipv4: LAN-WAN
+                ipv6: LAN-WAN-6
+              - name: LOCAL
+                ipv4: LOCAL-WAN 
+                ipv6: LOCAL-WAN-6
+              - name: DMZ
+                ipv4: DMZ-WAN
+        - name: LAN
+          default_action: drop
+          interfaces:
+              - eth0.2
+              - eth0.10
+              - eth0.50
+              - eth0
+              - l2tp+
+              - wg0
+              - tun0
+              - vtun0
+              - eth0.146
+              - tun3
+              - br146
+              - wg3
+              - eth0.510
+              - eth0.509
+              - eth0.500
+              - eth0.4
+              - tun2
+              - eth0.508
+              - eth0.505
+              - eth0.504
+              - eth0.501
+              - eth1
+              - br999
+          from_zone:
+              - name: WAN
+                ipv4: WAN-LAN
+                ipv6: WAN-LAN-6
+              - name: LOCAL
+                ipv4: LOCAL-LAN 
+                ipv6: LOCAL-LAN-6
+              - name: DMZ
+                ipv4: DMZ-LAN
+        - name: LOCAL
+          local_zone: True
+          default_action: drop
+          from_zone:
+              - name: WAN
+                ipv4: WAN-LOCAL
+                ipv6: WAN-LOCAL-6
+              - name: LAN
+                ipv4: LAN-LOCAL 
+                ipv6: LAN-LOCAL-6
+              - name: DMZ
+                ipv4: DMZ-LAN
+        - name: DMZ
+          default_action: drop
+          interfaces:
+              - eth0.6
+          from_zone:
+              - name: LAN
+                ipv4: LAN-LOCAL
+service:
+    ssh:
+        port: 22
+        client_keepalive_interval: 15
+    snmp:
+        communities: 
+            - name: public
+              authorization: ro
+              clients:
+                  - 127.0.0.1
+                  - 127.0.0.2
+        
+    dhcp_server:
+        hostfile_update: True
+        host_decl_name: True
+        shared_networks:
+            - name: VPNSUBNET
+              authoritative: True
+              subnets:
+                  - subnet: 10.0.4.0/24
+                    default_router: 10.0.4.1
+                    lease_time: 600
+                    dns_servers:
+                        - 10.53.53.53
+                        - 10.53.53.54
+                    range:
+                        - name: 0
+                          start: 10.0.4.100
+                          stop: 10.0.4.150
+                        - name: 1
+                          start: 10.0.4.200
+                          stop: 10.0.4.210

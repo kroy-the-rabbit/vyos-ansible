@@ -1,0 +1,35 @@
+---
+# tasks file for service
+#
+
+- name: Doing DHCP
+  vyos_config:
+      src: dhcp.j2
+  when:
+      - service is defined
+      - service.dhcp_server is defined
+  tags:
+      - service
+      - dhcp
+
+- name: Doing SSH
+  vyos_config:
+      src: ssh.j2
+  when:
+      - service is defined
+      - service.ssh is defined
+  tags:
+      - service
+      - ssh 
+
+- name: Doing SNMP
+  vyos_config:
+      src: snmp.j2
+  when:
+      - service is defined
+      - service.snmp is defined
+  tags:
+      - service
+      - snmp
+
+

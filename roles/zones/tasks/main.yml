@@ -1,0 +1,13 @@
+---
+# tasks file for zones
+#
+- name: configuring zones
+  vyos_config:
+      src: zones.j2
+  when:
+      - firewall is defined
+      - firewall.zones is defined
+  tags:
+      - firewall
+      - zones
+

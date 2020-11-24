@@ -1,0 +1,56 @@
+---
+# tasks file for system
+- name: Set hostname
+  vyos_system:
+    host_name: "{{ hostname }}"
+
+- name: Set domain name
+  vyos_system:
+    domain_name: "{{ domainname }}"
+
+- name: Remove postlogin banner
+  vyos_banner:
+    banner: post-login
+    state: absent
+
+
+- name: Update login banner
+  vyos_banner:
+    banner: pre-login
+    text: | 
+      ----------------------------------------
+      |
+      | Unauthorized access is prohibited
+      |
+      ----------------------------------------
+      |
+      | You are logged into {{ hostname }}
+      |
+      ----------------------------------------
+      |
+    state: present
+
+- name: Update nameservers
+  vyos_system:
+      name_server: "{{ item }}"
+  loop: "{{ nameservers }}"
+
+- name: Update NTP
+  vyos_config:
+      lines:
+      - set system ntp server {{ item }}
+  loop: "{{ ntpservers }}"
+
+- name: Setup syslog
+  vyos_config:
+      lines:
+        - "set system syslog host {{ log_host }} facility all level all"
+        - "set system syslog host {{ log_host }} facility all protocol udp "
+        - "set system syslog host {{ log_host }} port 1514 "
+        - "set system syslog global facility all level info "
+        - "set system syslog global preserve-fqdn"
+
+- name: Setup timeszone
+  vyos_config:
+      lines:
+        - "set system time-zone UTC"

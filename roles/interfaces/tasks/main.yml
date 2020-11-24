@@ -1,0 +1,12 @@
+---
+# tasks file for interfaces
+
+
+- name: Doing Basic interfaces (ethernet/lo)
+  vyos_config:
+      src: basic.j2
+  when:
+      - interfaces is defined
+  tags:
+      - interfaces
+
