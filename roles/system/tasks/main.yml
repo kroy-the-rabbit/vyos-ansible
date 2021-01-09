@@ -13,7 +13,6 @@
     banner: post-login
     state: absent
 
-
 - name: Update login banner
   vyos_banner:
     banner: pre-login
@@ -34,12 +33,14 @@
   vyos_system:
       name_server: "{{ item }}"
   loop: "{{ nameservers }}"
+  when: nameservers is defined
 
 - name: Update NTP
   vyos_config:
       lines:
       - set system ntp server {{ item }}
   loop: "{{ ntpservers }}"
+  when: ntpservers is defined
 
 - name: Setup syslog
   vyos_config:
@@ -49,8 +50,9 @@
         - "set system syslog host {{ log_host }} port 1514 "
         - "set system syslog global facility all level info "
         - "set system syslog global preserve-fqdn"
+  when: log_host is defined
 
 - name: Setup timeszone
   vyos_config:
       lines:
-        - "set system time-zone UTC"
+        - set system time-zone {{ timezone }}
