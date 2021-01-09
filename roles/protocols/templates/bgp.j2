@@ -1,0 +1,28 @@
+{% set bgp = protocols['bgp'] %}
+{% for AS in bgp  %}
+{% for network in AS['networks'] %}
+set protocols bgp {{ AS['local-as'] }} address-family ipv4-unicast network {{ network }}
+{% endfor %}
+{% for peergroup in AS['peer-groups'] %}
+{% if peergroup['remote-as'] is defined %}
+set protocols bgp {{ AS['local-as'] }} peer-group {{ peergroup['name'] }} remote-as {{ peergroup['remote-as'] }}
+{% endif %}
+{% if peergroup['desc'] is defined %}
+set protocols bgp {{ AS['local-as'] }} peer-group {{ peergroup['name'] }} description {{ peergroup['desc'] }}
+{% endif %}
+{% if peergroup['ebgp-multihop'] is defined %}
+set protocols bgp {{ AS['local-as'] }} peer-group {{ peergroup['name'] }} ebgp-multihop {{ peergroup['ebgp-multihop'] }}
+{% endif %}
+{% endfor %}
+{% for neighbor in AS['neighbors'] %}
+{% if neighbor['remote-as'] is defined %}
+set protocols bgp {{ AS['local-as'] }} neighbor {{ neighbor['ip'] }} remote-as {{ neighbor['remote-as'] }}
+{% endif %}
+{% if neighbor['desc'] is defined %}
+set protocols bgp {{ AS['local-as'] }} neighbor {{ neighbor['ip'] }} description {{ neighbor['desc'] }}
+{% endif %}
+{% if neighbor['ebgp-multihop'] is defined %}
+set protocols bgp {{ AS['local-as'] }} neighbor {{ neighbor['ip'] }} ebgp-multihop {{ neighbor['ebgp-multihop'] }}
+{% endif %}
+{% endfor %}
+{% endfor %}

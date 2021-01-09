@@ -1,0 +1,34 @@
+{% if service['snmp'] %}
+{% set snmp = service['snmp'] %}
+
+
+{% if snmp['communities'] is defined %}
+
+{% for community in snmp['communities'] %}
+
+{% if community['name'] is defined %}
+
+{% if community['authorization'] is defined %}
+set service snmp community {{ community['name'] }} authorization {{ community['authorization'] }}
+
+
+{% if community['clients'] is defined %}
+{% for client in community['clients'] %}
+set service snmp community {{ community['name'] }} client {{ client }}
+{% endfor %}
+{% endif %}
+
+{% if community['networks'] is defined %}
+{% for network in community['networks'] %}
+set service snmp community {{ community['name'] }} network {{ network }}
+{% endfor %}
+{% endif %}
+
+{% endif %}
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+{% endif %}
