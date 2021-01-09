@@ -11,6 +11,8 @@
       - import_role:
           name: interfaces
       - import_role:
+          name: protocols
+      - import_role:
           name: nat
       - import_role:
           name: service

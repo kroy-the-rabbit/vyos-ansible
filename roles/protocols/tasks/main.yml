@@ -1,0 +1,22 @@
+---
+# tasks file for bgp
+#
+
+- name: Debug BGP
+  template:
+    src: bgp.j2
+    dest: ./bgp.conf
+  delegate_to: localhost
+  tags:
+    - debug
+
+- name: Doing BGP
+  vyos_config:
+      src: bgp.j2
+  when:
+      - protocols is defined
+      - protocols.bgp is defined
+  tags:
+      - bgp
+
+

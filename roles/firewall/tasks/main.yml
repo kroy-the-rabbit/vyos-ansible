@@ -5,6 +5,8 @@
   vyos_config:
     lines:
       - set firewall all-ping enable
+  when:
+      - firewall is defined
   tags:
     - firewall
 
@@ -13,6 +15,8 @@
     lines:
       - set firewall state-policy established action accept
       - set firewall state-policy related action accept
+  when:
+      - firewall is defined
   tags:
     - firewall
       
